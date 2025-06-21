@@ -1,7 +1,20 @@
 @extends('layouts.app')
 @section('title', 'Home')
+@push('styles')
+    <style>
+        .category-thumbnail {
+            width: 50px;
+        }
+
+        @media (min-width: 768px) {
+            .category-thumbnail {
+                width: 200px;
+            }
+        }
+        </style>
+@endpush
 @section('banner')
-    <section class="py-3"
+    {{-- <section class="py-3"
         style="background-image: url('{{ asset('FoodMart') }}/images/background-pattern.jpg');background-repeat: no-repeat;background-size: cover;">
         <div class="container-fluid">
             <div class="row">
@@ -43,12 +56,12 @@
                             <div class="row banner-content p-5">
 
                                 <div class="content-wrapper col-md-7">
-                                    {{-- <div class="categories sale mb-3 pb-3">20% off</div>
+                                    <div class="categories sale mb-3 pb-3">20% off</div>
                                     <h3 class="banner-title">Fruits & Vegetables</h3>
                                     <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg
                                             width="24" height="24">
                                             <use xlink:href="#arrow-right"></use>
-                                        </svg></a> --}}
+                                        </svg></a>
                                 </div>
 
                             </div>
@@ -58,14 +71,14 @@
                             style="background:url('{{ asset('storage/' . getSetting()->slider_1) }}') no-repeat;background-position: right bottom">
                             <div class="row banner-content p-5">
 
-                                {{-- <div class="content-wrapper col-md-7">
+                                <div class="content-wrapper col-md-7">
                                     <div class="categories sale mb-3 pb-3">15% off</div>
                                     <h3 class="item-title">Baked Products</h3>
                                     <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg
                                             width="24" height="24">
                                             <use xlink:href="#arrow-right"></use>
                                         </svg></a>
-                                </div> --}}
+                                </div>
 
                             </div>
                         </div>
@@ -76,7 +89,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     <section class="py-5 overflow-hidden">
         <div class="container-fluid">
@@ -84,10 +97,10 @@
                 <div class="col-md-12">
 
                     <div class="section-header d-flex flex-wrap justify-content-between mb-5">
-                        <h2 class="section-title">Category</h2>
+                        <h2 class="section-title">Kategori</h2>
 
                         <div class="d-flex align-items-center">
-                            <a href="#" class="btn-link text-decoration-none">View All Categories →</a>
+                            {{-- <a href="#" class="btn-link text-decoration-none">Lihat Semua</a> --}}
                             <div class="swiper-buttons">
                                 <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
                                 <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
@@ -98,14 +111,13 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-
+                <div class="col-12">
                     <div class="category-carousel swiper">
                         <div class="swiper-wrapper">
                             @foreach (getCategory() as $category)
                                 <a data-id="{{ $category->id }}" class="nav-link category-item swiper-slide">
                                     <img src="{{ Str::contains($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}"
-                                        alt="Category Thumbnail">
+                                        alt="Category Thumbnail" class="rounded-2 category-thumbnail">
                                     <h3 class="category-title">{{ $category->name }}</h3>
                                 </a>
                             @endforeach
@@ -157,7 +169,7 @@
                                                     <form class="add-to-cart-form" data-id="{{ $product->id }}">
                                                         <div class="input-group product-qty">
                                                             <span class="input-group-btn">
-                                                            <button type="button"
+                                                                <button type="button"
                                                                     class="quantity-left-minus btn btn-danger btn-number"
                                                                     data-type="minus">
                                                                     <svg width="16" height="16">

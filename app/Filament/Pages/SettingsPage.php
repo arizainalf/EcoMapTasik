@@ -95,7 +95,6 @@ class SettingsPage extends Page implements Forms\Contracts\HasForms
 
                                     $result = $courierService->getDestinationId($search);
 
-
                                     if (isset($result) && is_array($result)) {
                                         return collect($result)
                                             ->pluck('label', 'zip_code')
@@ -124,6 +123,7 @@ class SettingsPage extends Page implements Forms\Contracts\HasForms
                             ->image()
                             ->label('Logo')
                             ->directory('settings')
+                            ->getUploadedFileNameForStorageUsing(fn($file) => $file->getClientOriginalName())
                             ->disk('public'),
 
                         Forms\Components\FileUpload::make('slider_1')

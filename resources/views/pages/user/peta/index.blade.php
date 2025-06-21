@@ -37,7 +37,7 @@
                     <!-- Accordion: Pilih Tampilan Peta -->
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="headingPeta">
-                            <button class="accordion-button collapsed bg-danger text-white" type="button"
+                            <button class="accordion-button collapsed bg-secondary text-white" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#collapsePeta" aria-expanded="false"
                                 aria-controls="collapsePeta">
                                 Pilih Tampilan Peta
@@ -65,8 +65,8 @@
                                 Pilih Kecamatan
                             </button>
                         </h2>
-                        <div id="collapseKecamatan" class="accordion-collapse collapse"
-                            aria-labelledby="headingKecamatan" data-bs-parent="#accordionSidebar">
+                        <div id="collapseKecamatan" class="accordion-collapse collapse" aria-labelledby="headingKecamatan"
+                            data-bs-parent="#accordionSidebar">
                             <div class="accordion-body scroll-box" id="checkboxList">
                                 <!-- Checkbox akan diisi dinamis -->
                             </div>
@@ -84,7 +84,7 @@
                         Peta Bank Sampah kota tasikmalaya
                     </div>
                     <div class="card-body p-0">
-                        <div id="map"></div>
+                        <div id="map" style="height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -105,9 +105,14 @@
             if (item.latitude && item.longitude) {
                 L.marker([item.latitude, item.longitude])
                     .addTo(map)
-                    .bindPopup(
-                        `<img src="storage/${item.image}" alt="${item.name}" width="100%"><strong>${item.name}</strong><br>${item.address || ''}<br>${item.description || ''}`
-                    );
+                    .bindPopup(`
+                <div style="max-width: 200px;">
+                    <img src="storage/${item.image}" alt="${item.name}" style="width: 100%; height: auto; border-radius: 8px;">
+                    <strong>${item.name}</strong><br>
+                    ${item.address || ''}<br>
+                    ${item.description || ''}
+                </div>
+            `);
             }
         });
 

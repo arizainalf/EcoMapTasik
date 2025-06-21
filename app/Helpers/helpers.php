@@ -173,6 +173,11 @@ if (! function_exists('formatRupiah')) {
     }
 }
 
+function storageUrl(?string $path): ?string
+{
+    return $path ? asset('storage/' . $path) : null;
+}
+
 if (! function_exists('bulan')) {
     function bulan()
     {

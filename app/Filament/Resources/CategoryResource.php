@@ -53,11 +53,13 @@ class CategoryResource extends Resource
                                 ->columns(1)
                                 ->schema([
                                     Tables\Columns\ImageColumn::make('image')
+                                        ->getStateUsing(fn($record) => asset('storage/' . $record->image)) // isi <img src="..." >
                                         ->width(100)
                                         ->height(100)
                                         ->extraAttributes([
-                                            'class' => 'rounded-md',
-                                        ]),
+                                            'class' => 'rounded',
+                                        ])
+                                        ->label('Gambar'),
                                 ])->grow(false),
                             Tables\Columns\Layout\Stack::make([
                                 Tables\Columns\TextColumn::make('name')
@@ -96,8 +98,8 @@ class CategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListCategories::route('/'),
-            'view'   => Pages\ViewCategory::route('/{record}'),
+            'index' => Pages\ListCategories::route('/'),
+            'view'  => Pages\ViewCategory::route('/{record}'),
             // 'create' => Pages\CreateCategory::route('/create'),
             // 'edit'   => Pages\EditCategory::route('/{record}/edit'),
         ];

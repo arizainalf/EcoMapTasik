@@ -141,6 +141,9 @@ body {
   --bs-primary: #FFC43F;
   --bs-primary-rgb: 255, 196, 63;
 
+  --bs-secondary: #ff3f3f;
+  --bs-secondary-rgb: 255, 5, 5;
+
   --bs-success: #a3be4c;
   --bs-success-rgb: 163, 190, 76;
 
@@ -149,7 +152,7 @@ body {
 
   --bs-border-color: #F7F7F7;
 
-  --bs-secondary-rgb: 230, 243, 251;
+  /* --bs-secondary-rgb: 230, 243, 251; */
   /* --bs-success-rgb: 238, 245, 228; */
   --bs-danger-rgb: 249, 235, 231;
   --bs-warning-rgb: 255, 249, 235;
