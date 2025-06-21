@@ -5,38 +5,40 @@
         <div class="offcanvas-body">
             <div class="order-md-last">
                 @auth()
-                    <h4 class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="text-primary">Keranjang Belanja</span>
-                        <span class="badge bg-primary rounded-pill">{{ getCartCount() }}</span>
-                    </h4>
-                    <ul class="list-group mb-3">
-                        @php
-                            $totalPriceCart = 0;
-                        @endphp
-                        @foreach (getCart()->cartProducts as $cart)
+                    @if (auth()->user()->role == 'user')
+                        <h4 class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-primary">Keranjang Belanja</span>
+                            <span class="badge bg-primary rounded-pill">{{ getCartCount() }}</span>
+                        </h4>
+                        <ul class="list-group mb-3">
                             @php
-                                $totalPriceCart += $cart->product->price;
+                                $totalPriceCart = 0;
                             @endphp
-                            <li class="list-group-item d-flex justify-content-between lh-sm">
-                                <div>
-                                    <h6 class="my-0">{{ $cart->product->name }}</h6>
-                                    <small class="text-body-secondary">{{ $cart->product->desription }}</small>
-                                </div>
-                                <span class="text-body-secondary">{{ formatRupiah($cart->product->price) }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between lh-sm">
-                                <div>
-                                    <h6 class="my-0">{{ $cart->product->name }}</h6>
-                                    <small class="text-body-secondary">{{ $cart->product->desription }}</small>
-                                </div>
-                                <span class="text-body-secondary">{{ formatRupiah($cart->product->price) }}</span>
-                            </li>
-                        @endforeach
-                    </ul>
-                    <div class="d-flex justify-content-end my-2">
-                        {{ formatRupiah($totalPriceCart) }}
-                    </div>
-                    <button class="w-100 btn btn-primary btn-lg" type="submit">Lanjut Pesan</button>
+                            @foreach (getCart()->cartProducts as $cart)
+                                @php
+                                    $totalPriceCart += $cart->product->price;
+                                @endphp
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div>
+                                        <h6 class="my-0">{{ $cart->product->name }}</h6>
+                                        <small class="text-body-secondary">{{ $cart->product->desription }}</small>
+                                    </div>
+                                    <span class="text-body-secondary">{{ formatRupiah($cart->product->price) }}</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between lh-sm">
+                                    <div>
+                                        <h6 class="my-0">{{ $cart->product->name }}</h6>
+                                        <small class="text-body-secondary">{{ $cart->product->desription }}</small>
+                                    </div>
+                                    <span class="text-body-secondary">{{ formatRupiah($cart->product->price) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <div class="d-flex justify-content-end my-2">
+                            {{ formatRupiah($totalPriceCart) }}
+                        </div>
+                        <button class="w-100 btn btn-primary btn-lg" type="submit">Lanjut Pesan</button>
+                    @endif
                 @endauth
             </div>
         </div>
