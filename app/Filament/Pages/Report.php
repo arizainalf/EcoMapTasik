@@ -2,39 +2,48 @@
 namespace App\Filament\Pages;
 
 use App\Models\Order;
+use App\Models\SerapanSampah;
 use Carbon\Carbon;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
+use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
-use Filament\Tables;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Columns\TextColumn;
 
-
-class Report extends Page implements HasForms, HasTable
+class Report extends Page implements Forms\Contracts\HasForms
 {
-    use InteractsWithForms;
-    use InteractsWithTable;
+    use Forms\Concerns\InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
     protected static string $view            = 'filament.pages.report';
     protected static ?string $title          = 'Laporan';
 
-    public ?array $data         = [];
-    public int $totalOrders     = 0;
-    public float $totalRevenue  = 0;
-    public float $avgOrderValue = 0;
-    public Collection $ordersByStatus;
+    public ?array $filters = [];
+    public Collection $orderResults;
+    public Collection $serapanResults;
+
+    public float $totalRevenue   = 0;
+    public int $totalOrders      = 0;
+    public float $avgOrderValue  = 0;
+    public float $totalSerapan   = 0;
+    public float $totalResidu    = 0;
+    public float $totalOrganic   = 0;
+    public float $totalAnorganic = 0;
+
+    public ?string $activeTab = 'orders';
+    public string $tableKey   = '';
+
+    public function onTabChanged($tab)
+    {
+        $this->activeTab = $tab;
+        // Generate unique key untuk memaksa table refresh
+        $this->tableKey = uniqid();
+        $this->generateReport();
+    }
 
     public function mount(): void
     {
         $this->form->fill();
+        $this->tableKey = uniqid();
         $this->generateReport();
     }
 
@@ -42,42 +51,49 @@ class Report extends Page implements HasForms, HasTable
     {
         return $form
             ->schema([
-                Section::make('Filter Laporan')
+                Forms\Components\Section::make('Filter Laporan')
                     ->schema([
-                        DatePicker::make('start_date')->label('Tanggal Mulai')->live(),
-                        DatePicker::make('end_date')->label('Tanggal Akhir')->live(),
-                        Select::make('status')
-                            ->options([
-                                'pending'    => 'Pending',
-                                'paid'       => 'Paid',
-                                'processing' => 'Processing',
-                                'shipped'    => 'Shipped',
-                                'delivered'  => 'Delivered',
-                                'cancelled'  => 'Cancelled',
-                            ])
-                            ->multiple()
-                            ->placeholder('Semua Status')
-                            ->live(),
-                    ])->columns(3),
-            ])->statePath('data');
-    }
+                        Forms\Components\DatePicker::make('start_date')
+                            ->label('Tanggal Mulai')
+                            ->live()
+                            ->afterStateUpdated(fn() => $this->generateReport()),
 
-    public function updated($property): void
-    {
-        $this->generateReport();
+                        Forms\Components\DatePicker::make('end_date')
+                            ->label('Tanggal Akhir')
+                            ->live()
+                            ->afterStateUpdated(fn() => $this->generateReport()),
+
+                        Forms\Components\Select::make('status')
+                            ->label('Status Transaksi')
+                            ->multiple()
+                            ->options([
+                                'belum_dibayar' => 'Belum Dibayar',
+                                'dibayar'       => 'Dibayar',
+                                'dikirim'       => 'Dikirim',
+                                'selesai'       => 'Selesai',
+                            ])
+                            ->placeholder('Semua Status')
+                            ->live()
+                            ->afterStateUpdated(fn() => $this->handleFilterUpdated())
+                            ->visible(fn() => $this->activeTab === 'orders'),
+
+                    ])->columns(3),
+            ])
+            ->statePath('filters');
     }
 
     public function generateReport(): void
     {
-        $query = $this->getFilteredQuery();
-
-        $this->totalOrders    = $query->count();
-        $this->totalRevenue   = $query->sum('total_price');
-        $this->avgOrderValue  = $this->totalOrders > 0 ? $this->totalRevenue / $this->totalOrders : 0;
-        $this->ordersByStatus = $query->groupBy('status')->selectRaw('status, count(*) as count')->pluck('count', 'status');
+        $this->loadOrders();
+        $this->loadSerapan();
     }
 
-    protected function getFilteredQuery()
+    protected function handleFilterUpdated()
+    {
+        $this->generateReport();
+    }
+
+    protected function getOrderQuery()
     {
         $data  = $this->form->getState();
         $query = Order::query();
@@ -85,11 +101,9 @@ class Report extends Page implements HasForms, HasTable
         if (! empty($data['start_date'])) {
             $query->where('created_at', '>=', Carbon::parse($data['start_date'])->startOfDay());
         }
-
         if (! empty($data['end_date'])) {
             $query->where('created_at', '<=', Carbon::parse($data['end_date'])->endOfDay());
         }
-
         if (! empty($data['status'])) {
             $query->whereIn('status', $data['status']);
         }
@@ -97,37 +111,62 @@ class Report extends Page implements HasForms, HasTable
         return $query;
     }
 
-    public function table(Tables\Table $table): Tables\Table
+    protected function getSerapanQuery()
     {
-        return $table
-            ->query(fn() => $this->getFilteredQuery())
-            ->columns([
-                TextColumn::make('created_at')
-                    ->label('Tanggal')
-                    ->dateTime('d F Y'),
+        $data  = $this->form->getState();
+        $query = SerapanSampah::query();
 
-                TextColumn::make('customer_name')
-                    ->label('Customer')
-                    ->searchable(),
+        if (! empty($data['start_date'])) {
+            $query->where('tanggal', '>=', Carbon::parse($data['start_date'])->startOfDay());
+        }
+        if (! empty($data['end_date'])) {
+            $query->where('tanggal', '<=', Carbon::parse($data['end_date'])->endOfDay());
+        }
 
-                TextColumn::make('total_price')
-                    ->label('Total')
-                    ->money('IDR'),
+        return $query;
+    }
 
-                TextColumn::make('status')
-                    ->label('Status')
-                    ->badge()
-                    ->color(fn(string $state) => match ($state) {
-                        'pending'                 => 'gray',
-                        'paid'                    => 'success',
-                        'processing'              => 'warning',
-                        'shipped'                 => 'info',
-                        'delivered'               => 'success',
-                        'cancelled'               => 'danger',
-                        default                   => 'secondary',
-                    }),
-            ])
-            ->paginated()
-            ->defaultSort('created_at', 'desc');
+    protected function loadOrders(): void
+    {
+        $query = $this->getOrderQuery();
+
+        $this->orderResults = $query->with('user')->get();
+
+        $this->totalOrders   = $this->orderResults->count();
+        $this->totalRevenue  = $this->orderResults->sum('total_price');
+        $this->avgOrderValue = $this->totalOrders > 0 ? $this->totalRevenue / $this->totalOrders : 0;
+    }
+
+    protected function loadSerapan(): void
+    {
+        $query = $this->getSerapanQuery();
+
+        $this->serapanResults = $query->with('tempat')->get();
+        $this->totalSerapan   = $this->serapanResults->sum('total');
+        $this->totalOrganic   = $this->serapanResults->sum('organic');
+        $this->totalAnorganic = $this->serapanResults->sum('anorganic');
+        $this->totalResidu    = $this->serapanResults->sum('residu');
+    }
+
+    protected function getTableQuery()
+    {
+        return $this->activeTab === 'orders'
+        ? $this->getOrderQuery()->with('user')
+        : $this->getSerapanQuery()->with('tempat');
+    }
+
+    public function getTableData()
+    {
+        $query      = $this->getTableQuery();
+        $sortColumn = $this->activeTab === 'orders' ? 'created_at' : 'tanggal';
+
+        return $query->orderBy($sortColumn, 'desc')->paginate(10);
+    }
+
+    // Method untuk refresh table ketika tab berubah
+    public function updatedActiveTab()
+    {
+        // Method ini akan dipanggil setelah onTabChanged
+        // Tidak perlu action tambahan karena sudah di-handle di onTabChanged
     }
 }

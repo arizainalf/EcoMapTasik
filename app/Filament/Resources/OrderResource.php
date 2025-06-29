@@ -20,7 +20,7 @@ class OrderResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static ?string $navigationGroup = 'Transaction Data';
+    protected static ?string $navigationGroup = 'Data Transaksi';
 
     protected static ?string $navigationLabel = 'Pesanan';
 
@@ -62,11 +62,12 @@ class OrderResource extends Resource
                     Forms\Components\Select::make('status')
                         ->required()
                         ->options([
-                            'pending' => 'Pending',
-                            'paid'    => 'Dibayar',
-                            'sent'    => 'Dikirim',
+                            'belum_dibayar' => 'Belum Dibayar',
+                            'dibayar'       => 'Dibayar',
+                            'dikirim'       => 'Dikirim',
+                            'selesai'       => 'Selesai',
                         ])
-                        ->default('pending'),
+                        ->default('belum_dibayar'),
 
                     Forms\Components\FileUpload::make('payment_proof')
                         ->label('Bukti Pembayaran')
@@ -122,9 +123,10 @@ class OrderResource extends Resource
                     ->searchable(),
                 Tables\Columns\SelectColumn::make('status')
                     ->options([
-                        'pending' => '⏳ Pending',
-                        'paid'    => '✅ Dibayar',
-                        'sent'    => '📦 Dikirim',
+                        'belum_dibayar' => 'Belum Dibayar',
+                        'dibayar'       => 'Dibayar',
+                        'dikirim'       => 'Dikirim',
+                        'selesai'       => 'Selesai',
                     ])
                     ->selectablePlaceholder(false)
                     ->searchable()

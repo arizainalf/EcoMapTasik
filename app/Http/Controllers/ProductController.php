@@ -1,7 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
+use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -35,7 +37,7 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with('category', 'reviews','reviews.user')->where('id', $id)->firstOrFail();
+        $product = Product::with('category', 'reviews', 'reviews.user')->where('id', $id)->firstOrFail();
 
         $products = Product::with('category')
             ->where('id', '!=', $product->id)
@@ -49,17 +51,20 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $slug)
+    public function category(string $id)
     {
-        //
+        $category = Category::where('id', $id)->firstOrFail();
+        $products = Product::where('category_id', $category->id)->latest()->get();
+        return view('pages.user.product.category', compact('category', 'products'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $slug)
+    public function reviews(string $id)
     {
-        //
+        $product = Product::with('reviews')->where('id', $id)->first();
+        return view('pages.user.product.review', compact('product'));
     }
 
     /**

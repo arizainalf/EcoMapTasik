@@ -31,8 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->favicon(asset('storage/'.getSetting()->logo))
             ->navigationGroups([
-                'Master Data',
-                'Transaction Data',
+                'Data Master',
+                'Data Transaksi',
                 'Laporan',
                 'Settings',
             ])

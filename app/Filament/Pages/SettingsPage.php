@@ -44,6 +44,15 @@ class SettingsPage extends Page implements Forms\Contracts\HasForms
                             ->label('Deskripsi')
                             ->rows(3),
 
+                        Forms\Components\TextInput::make('invoice_prefix')
+                            ->label('Prefix Invoice')
+                            ->required(),
+
+                        Forms\Components\TextInput::make('discount')
+                            ->label('Diskon')
+                            ->numeric()
+                            ->required(),
+
                         Forms\Components\TextInput::make('phone_number')
                             ->label('No. Telepon'),
 
@@ -120,11 +129,13 @@ class SettingsPage extends Page implements Forms\Contracts\HasForms
                     ->description('Unggah logo dan gambar slider untuk tampilan aplikasi.')
                     ->schema([
                         Forms\Components\FileUpload::make('logo')
-                            ->image()
                             ->label('Logo')
-                            ->directory('settings')
-                            ->getUploadedFileNameForStorageUsing(fn($file) => $file->getClientOriginalName())
-                            ->disk('public'),
+                            ->image()
+                            ->disk('public')
+                            ->directory('logo')
+                            ->getUploadedFileNameForStorageUsing(function ($file) {
+                                return $file->getClientOriginalName();
+                            }),
 
                         Forms\Components\FileUpload::make('slider_1')
                             ->image()

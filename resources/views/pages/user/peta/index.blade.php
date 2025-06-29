@@ -4,6 +4,8 @@
 @push('styles')
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/Control.FullScreen.css" />
+
     <style>
         #map {
             height: 500px;
@@ -21,6 +23,12 @@
         .scroll-box {
             max-height: 450px;
             overflow-y: auto;
+        }
+
+        @media (max-width: 576px) {
+            .scroll-box {
+                max-height: 250px;
+            }
         }
     </style>
 @endpush
@@ -84,7 +92,7 @@
                         Peta Bank Sampah kota tasikmalaya
                     </div>
                     <div class="card-body p-0">
-                        <div id="map" style="height: 400px;"></div>
+                        <div id="map" style="height: 600px;"></div>
                     </div>
                 </div>
             </div>
@@ -95,9 +103,70 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.fullscreen/1.6.0/Control.FullScreen.js"></script>
 
     <script>
-        const map = L.map('map').setView([-7.35, 108.2], 12);
+        let kelurahanFeatures = []; // dari kelurahan geojson
+        let allFeatures = []; // dari kota geojson
+        let kelurahanLayerByCode = {};
+        let kecamatanNameMap = {};
+        const kelurahanColorMap = {};
+
+        function getColorFromString(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const color = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+            return "#" + "00000".substring(0, 6 - color.length) + color;
+        }
+
+        function getConsistentColor(kd_kelurahan) {
+            if (!kelurahanColorMap[kd_kelurahan]) {
+                kelurahanColorMap[kd_kelurahan] = getColorFromString(kd_kelurahan);
+            }
+            return kelurahanColorMap[kd_kelurahan];
+        }
+
+        // Inisialisasi peta
+        const map = L.map('map', {
+            // fullscreenControl: true
+        }).setView([-7.35, 108.2], 12);
+
+        // Tambahkan kontrol fullscreen
+        L.control.fullscreen({
+            position: 'topright'
+        }).addTo(map);
+
+
+        // Tile layers
+        const tileLayers = {
+            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }),
+            satellite: L.tileLayer(
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    attribution: 'Tiles &copy; Esri'
+                }),
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenTopoMap'
+            }),
+            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB'
+            })
+        };
+
+        // Default layer
+        tileLayers.osm.addTo(map);
+
+        // Tile layer control select
+        const tileSelect = document.getElementById("tileLayerSelect");
+        if (tileSelect) {
+            tileSelect.addEventListener("change", function() {
+                Object.values(tileLayers).forEach(layer => map.removeLayer(layer));
+                tileLayers[this.value].addTo(map);
+            });
+        }
 
         const lokasi = @json($lokasi);
 
@@ -116,160 +185,153 @@
             }
         });
 
-        const tileLayers = {
-            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }),
-            satellite: L.tileLayer(
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    attribution: 'Tiles &copy; Esri'
-                }),
-            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenTopoMap'
-            }),
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; CartoDB'
-            })
-        };
-
-        tileLayers.osm.addTo(map);
-
-        document.getElementById("tileLayerSelect").addEventListener("change", function() {
-            const selected = this.value;
-            Object.values(tileLayers).forEach(layer => map.removeLayer(layer));
-            tileLayers[selected].addTo(map);
-        });
-
-        const kotaStyle = {
-            color: "#ffc107",
-            weight: 2,
-            fillOpacity: 0.3
-        };
-        const highlightStyle = {
-            color: "#198754",
-            weight: 3,
-            fillOpacity: 0.5
-        };
-
-        let allFeatures = [];
-        const layersByName = {};
-
-        function getKecamatanName(props) {
-            return props.nm_kecamatan || "Tanpa Nama";
-        }
-
-        function addCheckboxes(features) {
-            const list = document.getElementById('checkboxList');
-            list.innerHTML = ''; // Bersihkan isi sebelumnya
-
-            const seen = new Set();
-            const checkboxes = [];
-
-            // Buat checkbox untuk "Pilih Semua"
-            const selectAllCheckbox = document.createElement('input');
-            selectAllCheckbox.type = 'checkbox';
-            selectAllCheckbox.className = 'form-check-input me-1';
-            selectAllCheckbox.id = 'cb-select-all';
-
-            const selectAllLabel = document.createElement('label');
-            selectAllLabel.className = 'form-check-label fw-bold';
-            selectAllLabel.htmlFor = selectAllCheckbox.id;
-            selectAllLabel.appendChild(selectAllCheckbox);
-            selectAllLabel.append(" Pilih Semua");
-
-            const selectAllWrapper = document.createElement('div');
-            selectAllWrapper.className = 'form-check mb-2';
-            selectAllWrapper.appendChild(selectAllLabel);
-            list.appendChild(selectAllWrapper);
-
-            // Generate semua checkbox per kecamatan
-            features.forEach((feature, i) => {
-                const name = getKecamatanName(feature.properties);
-                if (seen.has(name)) return;
-                seen.add(name);
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'form-check-input me-1';
-                checkbox.id = `cb-${i}`;
-                checkbox.value = name;
-
-                const label = document.createElement('label');
-                label.className = 'form-check-label';
-                label.htmlFor = checkbox.id;
-                label.appendChild(checkbox);
-                label.append(" " + name);
-
-                const wrapper = document.createElement('div');
-                wrapper.className = 'form-check';
-                wrapper.appendChild(label);
-
-                checkbox.addEventListener('change', function() {
-                    wrapper.classList.toggle('bg-warning-subtle', this.checked);
-                    if (this.checked) {
-                        showKecamatan(name);
-                    } else {
-                        removeKecamatan(name);
-                    }
-
-                    // Perbarui status "Pilih Semua"
-                    const allChecked = checkboxes.every(cb => cb.checked);
-                    selectAllCheckbox.checked = allChecked;
-                });
-
-                checkboxes.push(checkbox);
-                list.appendChild(wrapper);
-            });
-
-            // Logic untuk checkbox "Pilih Semua"
-            selectAllCheckbox.addEventListener('change', function() {
-                checkboxes.forEach(cb => {
-                    // Jangan trigger event lagi, cukup set checked + trigger manual function
-                    cb.checked = selectAllCheckbox.checked;
-
-                    const wrapper = cb.closest('.form-check');
-                    wrapper.classList.toggle('bg-warning-subtle', cb.checked);
-
-                    const name = cb.value;
-                    if (cb.checked) {
-                        showKecamatan(name);
-                    } else {
-                        removeKecamatan(name);
-                    }
-                });
-            });
-        }
-
-        function showKecamatan(name) {
-            const filtered = allFeatures.filter(f => getKecamatanName(f.properties) === name);
-            const layer = L.geoJSON(filtered, {
-                style: highlightStyle,
-                onEachFeature: (feature, layer) => {
-                    layer.bindPopup("Kecamatan: " + getKecamatanName(feature.properties));
-                }
-            }).addTo(map);
-            layersByName[name] = layer;
-        }
-
-        function removeKecamatan(name) {
-            if (layersByName[name]) {
-                map.removeLayer(layersByName[name]);
-                delete layersByName[name];
-            }
-        }
-
-        // Load GeoJSON Kota Saja
+        // Setelah load kota geojson
         fetch('/geojson/KotaTasikmalaya1.geojson')
             .then(res => res.json())
             .then(kota => {
                 allFeatures = kota.features;
 
-                // Tambahkan batas wilayah umum (style dasar)
-                // L.geoJSON(kota, {
-                //     style: kotaStyle
-                // }).addTo(map);
+                // Buat mapping kd_kecamatan => nm_kecamatan
+                allFeatures.forEach(f => {
+                    const props = f.properties;
+                    if (props.kd_kecamatan && props.nm_kecamatan) {
+                        kecamatanNameMap[props.kd_kecamatan] = props.nm_kecamatan;
+                    }
+                });
 
-                addCheckboxes(allFeatures);
+                // Load kelurahan setelah kota
+                fetch('/geojson/kelurahanKotaTasikmalaya.geojson')
+                    .then(res => res.json())
+                    .then(kelurahan => {
+                        kelurahanFeatures = kelurahan.features;
+                        renderKecamatanCheckboxes();
+                    });
             });
+
+        function renderKecamatanCheckboxes() {
+            const container = document.getElementById('checkboxList');
+            container.innerHTML = '';
+            const grouped = {};
+
+            kelurahanFeatures.forEach(f => {
+                const props = f.properties;
+                const kd = props.kd_kecamatan;
+                if (!grouped[kd]) {
+                    grouped[kd] = {
+                        nama: kecamatanNameMap[kd] || `Kecamatan ${kd}`,
+                        kelurahans: []
+                    };
+                }
+                grouped[kd].kelurahans.push(f);
+            });
+
+            for (const [kd_kecamatan, {
+                    nama,
+                    kelurahans
+                }] of Object.entries(grouped)) {
+                const kecWrapper = document.createElement('div');
+                kecWrapper.className = 'border p-2 mb-2';
+
+                const kecCb = document.createElement('input');
+                kecCb.type = 'checkbox';
+                kecCb.className = 'form-check-input me-1';
+                kecCb.id = `cb-kec-${kd_kecamatan}`;
+
+                const kecLabel = document.createElement('label');
+                kecLabel.className = 'form-check-label fw-bold';
+                kecLabel.htmlFor = kecCb.id;
+                kecLabel.textContent = nama;
+
+                const kecDiv = document.createElement('div');
+                kecDiv.className = 'form-check mb-2';
+                kecDiv.append(kecCb, kecLabel);
+                kecWrapper.append(kecDiv);
+
+                const kelurahanDiv = document.createElement('div');
+                kelurahanDiv.className = 'ms-3';
+                kelurahanDiv.style.display = 'none';
+
+                kecCb.addEventListener('change', () => {
+                    if (kecCb.checked) {
+                        kelurahanDiv.style.display = 'block';
+                        kelurahanCheckboxes.forEach(cb => {
+                            cb.checked = true;
+                            showSingleKelurahan(cb.feature);
+                        });
+                    } else {
+                        kelurahanDiv.style.display = 'none';
+                        kelurahanCheckboxes.forEach(cb => {
+                            cb.checked = false;
+                            removeSingleKelurahan(kd_kecamatan, cb.feature.properties.kd_kelurahan);
+                        });
+                    }
+                });
+
+                const kelurahanCheckboxes = [];
+                kelurahans.forEach(f => {
+                    const kd_kel = f.properties.kd_kelurahan;
+                    const nm_kel = f.properties.nm_kelurahan;
+
+                    const cb = document.createElement('input');
+                    cb.type = 'checkbox';
+                    cb.className = 'form-check-input me-1';
+                    cb.id = `cb-${kd_kecamatan}-${kd_kel}`;
+                    cb.feature = f;
+
+                    const label = document.createElement('label');
+                    label.className = 'form-check-label';
+                    label.htmlFor = cb.id;
+                    label.textContent = nm_kel;
+
+                    const wrap = document.createElement('div');
+                    wrap.className = 'form-check';
+                    wrap.append(cb, label);
+
+                    kelurahanDiv.append(wrap);
+                    kelurahanCheckboxes.push(cb);
+
+                    cb.addEventListener('change', () => {
+                        if (cb.checked) {
+                            showSingleKelurahan(cb.feature);
+                        } else {
+                            removeSingleKelurahan(kd_kecamatan, kd_kel);
+                        }
+                    });
+                });
+
+                kecWrapper.append(kelurahanDiv);
+                container.append(kecWrapper);
+            }
+        }
+
+        function showSingleKelurahan(feature) {
+            const kd_kecamatan = feature.properties.kd_kecamatan;
+            const kd_kelurahan = feature.properties.kd_kelurahan;
+            const kode = `${kd_kecamatan}_${kd_kelurahan}`;
+            if (kelurahanLayerByCode[kode]) return;
+
+            const layer = L.geoJSON(feature, {
+                style: {
+                    color: getConsistentColor(kd_kelurahan),
+                    weight: 1.5,
+                    fillOpacity: 0.5
+                },
+                onEachFeature: (f, l) => {
+                    l.bindPopup(
+                        `Kelurahan: ${f.properties.nm_kelurahan}<br>Kecamatan: ${kecamatanNameMap[kd_kecamatan]}`
+                    );
+                }
+            }).addTo(map);
+
+            kelurahanLayerByCode[kode] = layer;
+        }
+
+        function removeSingleKelurahan(kd_kecamatan, kd_kelurahan) {
+            const kode = `${kd_kecamatan}_${kd_kelurahan}`;
+            if (kelurahanLayerByCode[kode]) {
+                map.removeLayer(kelurahanLayerByCode[kode]);
+                delete kelurahanLayerByCode[kode];
+            }
+        }
     </script>
 @endpush

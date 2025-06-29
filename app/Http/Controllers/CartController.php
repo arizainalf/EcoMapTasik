@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\CartProduct;
 use App\Traits\JsonResponder;
 use Illuminate\Http\Request;
@@ -11,9 +12,18 @@ class CartController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->ajax()) {
+            $cart = Cart::with('cartProducts.product')->where('user_id', auth()->user()->id)->first();
+
+            $data = [
+                'view' => view('components.user.cart', compact('cart'))->render(),
+            ];
+
+            return $this->successResponse($data, 'Data berhasil ditemukan.');
+        }
+        return redirect()->back();
     }
 
     /**
@@ -58,14 +68,14 @@ class CartController extends Controller
         }
     }
 
-    public function updateQuantity(Request $request)
+    public function updateQuantity(Request $request, string $id)
     {
+        // dd($request->all());
         $validated = $request->validate([
             'quantity' => ['nullable', 'numeric'],
-            'cart_id'  => ['required', 'exists:carts,id'],
         ]);
 
-        $cartProduct = CartProduct::where('id', $request->id)->first();
+        $cartProduct = CartProduct::where('id', $id)->first();
 
         try {
             $cartProduct->update($validated);

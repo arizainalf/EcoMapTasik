@@ -17,22 +17,28 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::get('/cart', [App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
     Route::delete('cart/{id}', [App\Http\Controllers\CartController::class, 'destroy'])->name('cart.destroy');
     Route::get('cart/item/items', [App\Http\Controllers\CartController::class, 'items'])->name('cart.items');
     Route::post('cart', [App\Http\Controllers\CartController::class, 'store'])->name('cart.store');
     Route::put('cart/{id}/quantity', [App\Http\Controllers\CartController::class, 'updateQuantity'])->name('cart.update.quantity');
 
-    Route::get('/orders', [App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
-    Route::put('/orders/bukti/{id}', [App\Http\Controllers\OrderController::class, 'updateBukti'])->name('orders.update.bukti');
-    Route::post('/orders', [App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/order', [App\Http\Controllers\OrderController::class, 'order'])->name('orders.order');
-    Route::get('/orders/{id}/detail', [App\Http\Controllers\OrderController::class, 'detail'])->name('orders.detail');
+    Route::get('/pesanan', [App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+    Route::put('/pesanan/bukti/{id}', [App\Http\Controllers\OrderController::class, 'updateBukti'])->name('orders.update.bukti');
+    Route::post('/pesanan', [App\Http\Controllers\OrderController::class, 'store'])->name('orders.store');
+    Route::get('/pesanan/order', [App\Http\Controllers\OrderController::class, 'order'])->name('orders.order');
+    Route::get('/pesanan/{id}/detail', [App\Http\Controllers\OrderController::class, 'detail'])->name('orders.detail');
 
-    Route::get('/reviews', [App\Http\Controllers\ReviewController::class, 'index'])->name('reviews');
+    Route::get('category/{id}', [App\Http\Controllers\ProductController::class, 'category'])->name('category');
+
+    Route::get('/reviews/{id}', [App\Http\Controllers\ReviewController::class, 'index'])->name('review.product');
     Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('review.store');
 
     Route::get('profile', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile');
-    Route::put('profile', [App\Http\Controllers\ProfileController::class, 'store'])->name('profile.put');
+    Route::put('profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.update.password');
+    Route::put('profile/address', [App\Http\Controllers\ProfileController::class, 'updateAddress'])->name('profile.update.address');
     Route::put('profile/address/{user_id}', [App\Http\Controllers\ProfileController::class, 'updateAddress'])->name('profile.address.put');
 
 });

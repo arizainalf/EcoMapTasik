@@ -32,6 +32,13 @@ if (! function_exists('getSetting')) {
     }
 }
 
+if (! function_exists('humanize')) {
+    function humanize($text)
+    {
+        return ucwords(str_replace('_', ' ', $text));
+    }
+}
+
 if (! function_exists('getCategory')) {
     function getCategory()
     {
@@ -53,6 +60,19 @@ if (! function_exists('getAddress')) {
     {
         $addresses = Address::where('user_id', auth()->user()->id)->first();
         return $addresses;
+    }
+}
+
+if (! function_exists('produkTerjual')) {
+    function produkTerjual($id)
+    {
+        $product = Product::whereHas('orderProducts', function ($query) use ($id) {
+            $query->where('product_id', $id)->whereHas('orders', function ($query) {
+                $query->where('status', 'selesai');
+            });
+        });
+
+        return $product->count();
     }
 }
 

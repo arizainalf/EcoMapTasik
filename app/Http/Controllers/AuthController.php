@@ -106,8 +106,11 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Auth::logout();
-
-        return $this->successResponse(null, 'Logout berhasil.');
+        try {
+            Auth::logout();
+            return $this->successResponse(null, 'Logout berhasil.');
+        } catch (\Exception $e) {
+            return $this->errorResponse(null, 'Logout gagal. Silakan coba lagi. ' . $e->getMessage());
+        }
     }
 }

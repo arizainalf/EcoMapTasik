@@ -4,8 +4,8 @@
     <section class="py-5">
         <div class="container-fluid">
 
-            <div class="bg-secondary py-5 my-5 rounded-5"
-                style="background: url('{{ asset('FoodMart') }}/images/bg-leaves-img-pattern.png') no-repeat;">
+            <div class="bg-light py-5 my-5 rounded-5"
+                style="background: url('{{ asset('FoodMart/images/bg-leaves-img-pattern.png') }}') no-repeat;">
                 <div class="container">
                     <div class="row d-flex justify-content-center">
                         <div class="col-md-4 p-5">
@@ -36,14 +36,16 @@
                                             Remember me
                                         </label>
                                     </div>
-                                    <a href="{{ route('register') }}" class="btn btn-link">Daftar</a>
                                 </div>
 
 
                                 <div class="d-grid gap-2">
                                     <button type="submit" class="btn btn-dark btn-lg">Login</button>
                                 </div>
+                                <p class="mt-4">Belum punya akun? <a href="{{ route('register') }}">Daftar</a></p>
                             </form>
+                            <p class="mt-5 mb-3 text-muted text-center">© {{ date('Y') }} {{ getSetting()->app_name }}
+                            </p>
 
                         </div>
 

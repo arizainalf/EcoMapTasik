@@ -11,87 +11,11 @@
                 width: 200px;
             }
         }
-        </style>
+    </style>
 @endpush
 @section('banner')
-    {{-- <section class="py-3"
-        style="background-image: url('{{ asset('FoodMart') }}/images/background-pattern.jpg');background-repeat: no-repeat;background-size: cover;">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
 
-                    <div class="banner-blocks">
-
-                        <div class="banner-ad large bg-info block-1">
-
-                            <div class="swiper main-swiper">
-                                <div class="swiper-wrapper">
-
-                                    @foreach ($products as $product)
-                                        <div class="swiper-slide">
-                                            <div class="row banner-content p-5">
-                                                <div class="content-wrapper col-md-7">
-                                                    <div class="categories my-3">{{ $product->category->name }}</div>
-                                                    <h3 class="display-4">{{ $product->name }}</h3>
-                                                    <p>{{ $product->description }}</p>
-                                                    <a href="{{ route('products.show', $product->id) }}"
-                                                        class="btn btn-outline-dark btn-lg text-uppercase fs-6 rounded-1 px-4 py-3 mt-3">Beli</a>
-                                                </div>
-                                                <div class="img-wrapper col-md-5">
-                                                    <img src="{{ Str::contains($product->image, 'http') ? $product->image : asset('storage/' . $product->image) }}"
-                                                        class="img-fluid rounded-4" width="300px">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <div class="swiper-pagination"></div>
-
-                            </div>
-                        </div>
-
-                        <div class="banner-ad bg-success-subtle block-2"
-                            style="background:url('{{ asset('storage/' . getSetting()->slider_1) }}') no-repeat;background-position: right bottom">
-                            <div class="row banner-content p-5">
-
-                                <div class="content-wrapper col-md-7">
-                                    <div class="categories sale mb-3 pb-3">20% off</div>
-                                    <h3 class="banner-title">Fruits & Vegetables</h3>
-                                    <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg
-                                            width="24" height="24">
-                                            <use xlink:href="#arrow-right"></use>
-                                        </svg></a>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <div class="banner-ad bg-danger block-3"
-                            style="background:url('{{ asset('storage/' . getSetting()->slider_1) }}') no-repeat;background-position: right bottom">
-                            <div class="row banner-content p-5">
-
-                                <div class="content-wrapper col-md-7">
-                                    <div class="categories sale mb-3 pb-3">15% off</div>
-                                    <h3 class="item-title">Baked Products</h3>
-                                    <a href="#" class="d-flex align-items-center nav-link">Shop Collection <svg
-                                            width="24" height="24">
-                                            <use xlink:href="#arrow-right"></use>
-                                        </svg></a>
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-                    <!-- / Banner Blocks -->
-
-                </div>
-            </div>
-        </div>
-    </section> --}}
-
-    <section class="py-5 overflow-hidden">
+    <section class=" overflow-hidden">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
@@ -100,7 +24,6 @@
                         <h2 class="section-title">Kategori</h2>
 
                         <div class="d-flex align-items-center">
-                            {{-- <a href="#" class="btn-link text-decoration-none">Lihat Semua</a> --}}
                             <div class="swiper-buttons">
                                 <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
                                 <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
@@ -115,10 +38,11 @@
                     <div class="category-carousel swiper">
                         <div class="swiper-wrapper">
                             @foreach (getCategory() as $category)
-                                <a data-id="{{ $category->id }}" class="nav-link category-item swiper-slide">
+                                <a href="{{ route('category', $category->id) }}" data-id="{{ $category->id }}"
+                                    class="nav-link category-item swiper-slide">
                                     <img src="{{ Str::contains($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}"
                                         alt="Category Thumbnail" class="rounded-2 category-thumbnail">
-                                    <h3 class="category-title">{{ $category->name }}</h3>
+                                    <h6 class="category-title"><small>{{ $category->name }}</small></h6>
                                 </a>
                             @endforeach
                         </div>
@@ -128,14 +52,12 @@
         </div>
     </section>
 @endsection
+
 @section('content')
-
-    <section class="py-3">
+    <section class="">
         <div class="container-fluid">
-
             <div class="row">
                 <div class="col-md-12">
-
                     <div class="bootstrap-tabs product-tabs">
                         <div class="tabs-header d-flex justify-content-between border-bottom my-5">
                             <h3>Produk Terbaru</h3>
@@ -150,23 +72,51 @@
                                     @foreach (getProducts() as $product)
                                         <div class="col">
                                             <div class="product-item">
-                                                <span class="badge bg-success position-absolute m-3">-30%</span>
-
-                                                <figure>
+                                                <span
+                                                    class="badge bg-success position-absolute m-3">-{{ getSetting()->discount }}%</span>
                                                     <a href="{{ route('products.show', $product->id) }}"
                                                         title="Product Title">
                                                         <img src="{{ Str::contains($product->image, 'http') ? $product->image : asset('storage/' . $product->image) }}"
-                                                            class="tab-image" width="100%">
+                                                            class="img-fluid" height="100%" width="100%">
                                                     </a>
-                                                </figure>
-                                                <h3>{{ $product->name }}</h3>
-                                                <span class="qty">1 Unit</span><span class="rating"><svg width="24"
-                                                        height="24" class="text-primary">
-                                                        <use xlink:href="#star-solid"></use>
-                                                    </svg> 4.5</span>
-                                                <span class="price">{{ formatRupiah($product->price) }}</span>
-                                                <div class="d-flex align-items-center justify-content-between">
-                                                    <form class="add-to-cart-form" data-id="{{ $product->id }}">
+                                                <h6>{{ $product->name }}</h6>
+                                                <div>
+                                                    <div class="my-auto">
+                                                        @php
+                                                            $avg = $product->reviews->avg('rating');
+                                                            $fullStars = floor($avg);
+                                                            $halfStar = $avg - $fullStars >= 0.5;
+                                                            $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+                                                        @endphp
+                                                        <a class="text-decoration-none"
+                                                            href="{{ route('review.product', $product->id) }}">
+                                                            <span class="text-primary">
+                                                                @for ($i = 0; $i < $fullStars; $i++)
+                                                                    <i class="fa fa-star"></i>
+                                                                @endfor
+                                                                @if ($halfStar)
+                                                                    <i class="fa fa-star-half-alt"></i>
+                                                                @endif
+                                                                @for ($i = 0; $i < $emptyStars; $i++)
+                                                                    <i class="fa fa-star-o"></i>
+                                                                @endfor
+                                                            </span>
+                                                        </a>
+                                                        <span>({{ number_format($avg, 1) }} / 5.0)</span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <small
+                                                        class="text-muted text-decoration-line-through">{{ formatRupiah($product->price + ($product->price * getSetting()->discount) / 100) }}</small>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span class="qty my-auto">{{ $product->stock }} Pcs</span>
+                                                    <div>
+                                                        <span class="price">{{ formatRupiah($product->price) }}</span>
+                                                    </div>
+                                                </div>
+                                                <form class="add-to-cart-form" data-id="{{ $product->id }}">
+                                                    <div class="d-flex align-items-center justify-content-between">
                                                         <div class="input-group product-qty">
                                                             <span class="input-group-btn">
                                                                 <button type="button"
@@ -183,20 +133,24 @@
                                                                 value="{{ $product->id }}">
                                                             <input type="hidden" name="cart_id"
                                                                 value="{{ getCartId() }}">
-                                                            <span class="input-group-btn">
-                                                                <button type="button"
-                                                                    class="quantity-right-plus btn btn-success btn-number"
-                                                                    data-type="plus">
-                                                                    <svg width="16" height="16">
-                                                                        <use xlink:href="#plus"></use>
-                                                                    </svg>
-                                                                </button>
-                                                            </span>
+                                                            <div class="d-flex">
+                                                                <span class="input-group-btn">
+                                                                    <button type="button"
+                                                                        class="quantity-right-plus btn btn-success btn-number"
+                                                                        data-type="plus">
+                                                                        <svg width="16" height="16">
+                                                                            <use xlink:href="#plus"></use>
+                                                                        </svg>
+                                                                    </button>
+                                                                </span>
+
+                                                            </div>
                                                         </div>
-                                                        <button type="submit" class="nav-link add-to-cart">Add to Cart
-                                                            <iconify-icon icon="uil:shopping-cart"></a>
-                                                    </form>
-                                                </div>
+                                                        <button type="submit" class="add-to-cart btn btn-lg">
+                                                            <i class="fa-solid fa-cart-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </div>
                                     @endforeach
@@ -224,7 +178,8 @@
                 const method = 'POST';
 
                 const successCallback = function(response) {
-                    successToast('success', response);
+                    successToast(response.message);
+                    loadCartItems()
                 }
 
                 const errorCallback = function(error) {

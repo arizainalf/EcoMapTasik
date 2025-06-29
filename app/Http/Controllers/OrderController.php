@@ -17,12 +17,22 @@ class OrderController extends Controller
      */
     public function index()
     {
-        return view('pages.user.order.index');
-    }
-    public function order()
-    {
         $orders = Order::with('bankAccount')->where('user_id', auth()->user()->id)->get();
-        return view('pages.user.order.orders', compact('orders'));
+        return view('pages.pesanan.index', compact('orders'));
+    }
+    public function order(Request $request)
+    {
+        $validated = $request->validate([
+            'orderProducts' => 'required|array|min:1',
+        ]);
+
+        $ids = $validated['orderProducts'];
+        $ids = array_map('intval', $ids);
+
+        $orders = CartProduct::with('product')->whereIn('id', $ids)->get();
+
+        // dd($validated['orderProducts'], $orders, $ids);
+        return view('pages.pesanan.order', compact('orders'));
     }
 
     /**
@@ -30,8 +40,9 @@ class OrderController extends Controller
      */
     public function detail(string $id)
     {
+        $order         = Order::find($id);
         $orderProducts = OrderProduct::with('product')->where('order_id', $id)->get();
-        return view('pages.user.order.detail', compact('orderProducts'));
+        return view('pages.pesanan.detail', compact('orderProducts', 'order'));
     }
 
     /**
@@ -53,10 +64,13 @@ class OrderController extends Controller
         ]);
 
         try {
+            $validated['status'] = 'belum_dibayar';
+
             if ($request->hasFile('payment_proof')) {
                 // ✅ Simpan di storage/public supaya bisa diakses langsung
                 $validated['payment_proof'] = $request->file('payment_proof')->store('payment_proofs', 'public');
                 $validated['paid_at']       = now();
+                $validated['status']        = 'dibayar';
             }
 
             $order = Order::create($validated);
@@ -67,6 +81,7 @@ class OrderController extends Controller
                     'product_id'  => $item['id'],
                     'quantity'    => $item['quantity'],
                     'total_price' => $item['total_price'],
+                    'status'      => $validated['status'],
                 ]);
 
                 $product = Product::find($item['id']);
@@ -76,7 +91,7 @@ class OrderController extends Controller
             $cart = Cart::where('user_id', $request->user_id)->first();
             CartProduct::where('cart_id', $cart->id)->delete();
 
-            return $this->successResponse('Order created successfully', $order);
+            return $this->successResponse(null, 'Pesanan berhasil dibuat.');
         } catch (\Exception $e) {
             return $this->errorResponse(null, $e->getMessage(), 500);
         }
@@ -118,7 +133,7 @@ class OrderController extends Controller
 
             $order->update($validated);
 
-            return $this->successResponse('Order updated successfully', $order);
+            return $this->successResponse(null, 'Order updated successfully');
         } catch (\Exception $e) {
             return $this->errorResponse(null, $e->getMessage(), 500);
         }

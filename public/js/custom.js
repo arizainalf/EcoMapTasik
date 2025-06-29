@@ -1,4 +1,10 @@
-const ajaxCall = (url, method, data, successCallback, errorCallback) => {
+const ajaxCall = (
+    url,
+    method,
+    data,
+    successCallback = null,
+    errorCallback = null
+) => {
     const isFormData = data instanceof FormData
     const isGet = method.toUpperCase() === 'GET'
 
@@ -21,6 +27,7 @@ const ajaxCall = (url, method, data, successCallback, errorCallback) => {
         },
         dataType: 'json',
         success: function (response) {
+            console.log(response)
             successCallback(response)
         },
         error: function (error) {
@@ -151,9 +158,9 @@ function formatTanggal (timestamp) {
 function showToast (icon = 'success', message) {
     const Toast = Swal.mixin({
         toast: true,
-        position: 'top-end',
+        position: 'top',
         showConfirmButton: false,
-        timer: 3000,
+        timer: 1500,
         timerProgressBar: true,
         didOpen: toast => {
             toast.onmouseenter = Swal.stopTimer
@@ -168,10 +175,18 @@ function showToast (icon = 'success', message) {
 
 function errorToast (error) {
     console.log(error)
-    showToast('error', error.responseJSON.message ? error?.message ? error : error.responseJSON.message : '-')
+    showToast(
+        'error',
+        error.responseJSON.message
+            ? error?.message
+                ? error
+                : error.responseJSON.message
+            : '-'
+    )
 }
-function successToast (response) {
-    showToast('success', response?.message || '-')
+function successToast (message) {
+    console.log(message, 'message show toast')
+    showToast('success', message)
 }
 
 function showSwal (title, icon, message, redirect = null) {

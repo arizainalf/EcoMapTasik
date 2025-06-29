@@ -7,7 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="author" content="">
     <meta name="keywords" content="">
     <meta name="description" content="">
@@ -27,7 +27,17 @@
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://kit.fontawesome.com/116b49f636.js" crossorigin="anonymous"></script>
     @stack('styles')
+    <style>
+        .cart-quantity.form-control {
+            width: 60px !important;
+        }
+
+        ul.d-flex.justify-content-end.list-unstyled a {
+            text-decoration: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -126,20 +136,156 @@
 
     @include('components.user.footer')
 
-    <script src="{{ asset('FoodMart') }}/js/jquery-1.11.0.min.js"></script>
+    <script src="{{ asset('FoodMart/js/jquery-1.11.0.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous">
     </script>
-    <script src="{{ asset('FoodMart') }}/js/plugins.js"></script>
-    <script src="{{ asset('FoodMart') }}/js/script.js"></script>
+    <script src="{{ asset('FoodMart/js/plugins.js') }}"></script>
+    <script src="{{ asset('FoodMart/js/script.js') }}"></script>
     <script src="{{ asset('js/custom.js') }}"></script>
     @stack('scripts')
     <script>
-        $(document).ready(function() {
+        function loadCartItems() {
+            const url = '{{ route('cart.index') }}';
 
-        })
+            const successCallback = function(response) {
+                $('#cartContainer').html(response.data.view);
+                initCartProductQty(); // re-bind event setelah render
+            }
+
+            const errorCallback = function(error) {
+                console.log(error);
+            }
+
+            ajaxCall(url, 'GET', null, successCallback, errorCallback);
+        }
+
+        // Fungsi update quantity via AJAX
+        function updateCartQuantity(id, quantity) {
+            const url = `/cart/${id}/quantity`;
+
+            const data = {
+                quantity: quantity,
+                _method: 'PUT',
+                _token: $('meta[name="csrf-token"]').attr('content')
+            };
+
+            const successCallback = function(response) {
+                console.log('Quantity updated');
+                // Optionally update total harga / subtotal di sini jika diperlukan
+                // Atau reload ulang cart jika benar-benar perlu:
+                loadCartItems();
+            };
+
+            const errorCallback = function(error) {
+                errorToast(error.responseJSON?.message || 'Gagal memperbarui jumlah');
+            };
+
+            ajaxCall(url, 'POST', data, successCallback, errorCallback);
+        }
+
+        // Bind event click quantity per produk
+        var initCartProductQty = function() {
+            $('.cart-product-qty').each(function() {
+                var $el_product = $(this);
+                const id = $el_product.data('id');
+
+                // Hindari duplicate event dengan off().on()
+                $el_product.find('.quantity-right-plus').off().on('click', function(e) {
+                    e.preventDefault();
+                    let quantity = parseInt($el_product.find('#cart-quantity').val()) || 0;
+                    quantity += 1;
+                    $el_product.find('#cart-quantity').val(quantity);
+                    updateCartQuantity(id, quantity);
+                });
+
+                $el_product.find('.quantity-left-minus').off().on('click', function(e) {
+                    e.preventDefault();
+                    let quantity = parseInt($el_product.find('#cart-quantity').val()) || 0;
+                    if (quantity > 0) {
+                        quantity -= 1;
+                        $el_product.find('#cart-quantity').val(quantity);
+                        updateCartQuantity(id, quantity);
+                    }
+                });
+            });
+        }
+
+        function deleteCartProduct(id) {
+
+            const url = `/cart/${id}`;
+
+            const method = 'DELETE';
+
+            const successCallback = function(response) {
+                successToast(response);
+                loadCartItems();
+            }
+
+            const errorCallback = function(error) {
+                errorToast(error);
+            }
+
+            ajaxCall(url, method, null, successCallback, errorCallback);
+        }
+
+        function confirmLogout() {
+            swal.fire({
+                title: 'Anda yakin ingin keluar?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, keluar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                    const url = '/logout';
+
+                    const method = 'POST';
+
+                    const successCallback = function(response) {
+                        successToast(response);
+                        window.location.href = '/login';
+                    }
+
+                    const errorCallback = function(error) {
+                        errorToast(error);
+                    }
+
+                    ajaxCall(url, method, null, successCallback, errorCallback);
+
+                }
+
+            })
+        }
+
+        // Inisialisasi saat halaman selesai dimuat
+        $(document).ready(function() {
+            loadCartItems();
+
+            $(document).on('change', '#selectAllCart', function() {
+                $('.cart-item-checkbox').prop('checked', this.checked);
+            });
+
+            $(document).on('change', '.cart-item-checkbox', function() {
+                let allChecked = $('.cart-item-checkbox').length === $('.cart-item-checkbox:checked')
+                    .length;
+                $('#selectAllCart').prop('checked', allChecked);
+            });
+
+            // $(document).on('submit', '#checkoutForm', function(e) {
+            //     e.preventDefault();
+
+            //     const formData = new FormData(this);
+            //     const url = "{{ route('orders.order') }}";
+
+            //     ajaxCall(url, 'GET', formData);
+            // });
+        });
     </script>
+
 </body>
 
 </html>

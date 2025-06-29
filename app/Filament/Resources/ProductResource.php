@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 class ProductResource extends Resource
 {
     protected static ?string $model           = Product::class;
-    protected static ?string $navigationGroup = 'Master Data';
+    protected static ?string $navigationGroup = 'Data Master';
     protected static ?string $navigationLabel = 'Produk';
     protected static ?string $navigationIcon  = 'heroicon-o-archive-box';
 

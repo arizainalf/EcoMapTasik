@@ -1,15 +1,15 @@
 <?php
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
     use HasFactory;
 
     protected $guarded = [
-       'id'
+        'id',
     ];
 
     public function user()
@@ -30,5 +30,18 @@ class Order extends Model
     public function orderProducts()
     {
         return $this->hasMany(OrderProduct::class);
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($order) {
+            // Ambil prefix dari settings, atau fallback ke 'INV-'
+            $prefix = getSetting()->invoice_prefix . '-' ?? 'INV-';
+
+            // Gunakan timestamp saat ini (format: YYYYMMDDHHMMSS)
+            $timestamp = now()->format('YmdHis');
+
+            $order->invoice_number = $prefix . $timestamp;
+        });
     }
 }

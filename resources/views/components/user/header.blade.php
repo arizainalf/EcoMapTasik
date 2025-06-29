@@ -1,19 +1,18 @@
- <header>
+ <header class="border-bottom">
      <div class="container-fluid">
-         <div class="row py-3 border-bottom">
+         <div class="row py-2 border-bottom">
 
              <div class="col-sm-4 col-lg-3 text-center text-sm-start">
                  <div class="d-flex justify-content-start align-items-center">
                      <a href="{{ url('/') }}">
                          <img src="{{ asset('storage/' . getSetting()->logo) }}" alt="logo" class="img-fluid rounded"
-                             width="75px">
+                             width="50px">
                      </a>
                      <h4 class="ms-2 mb-0">{{ getSetting()->app_name }}</h4>
                  </div>
              </div>
 
              <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-5 d-none d-lg-block">
-
              </div>
 
              <div
@@ -24,34 +23,67 @@
                  </div>
 
                  <ul class="d-flex justify-content-end list-unstyled m-0">
-                     <li>
-                         <a href="{{ url('/') }}" class="rounded-circle bg-light p-2 mx-1">
-                             <svg width="24" height="24" viewBox="0 0 24 24">
-                                 <use xlink:href="#home"></use>
-                             </svg>
-                         </a>
-                     </li>
-                     <li>
-                         <a href="{{ route('peta.index') }}" class="rounded-circle bg-light p-2 mx-1">
-                             <svg width="24" height="24" viewBox="0 0 24 24">
-                                 <use xlink:href="#map-pin"></use>
-                             </svg>
+                     <li class="d-lg-none">
+                         <a href="{{ url('/') }}"
+                             class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('/') ? 'text-primary' : '' }}"
+                             style="width: 50px; height: 50px;">
+                             <span style="font-size: 25px;">
+                                 <i class="fas fa-home"></i>
+                             </span>
                          </a>
                      </li>
                      <li class="d-lg-none">
-                         <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas"
-                             data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                             <svg width="24" height="24" viewBox="0 0 24 24">
-                                 <use xlink:href="#cart"></use>
-                             </svg>
+                         <a href="{{ route('peta.index') }}"
+                             class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('peta/*') || request()->is('peta') ? 'text-primary' : '' }}"
+                             style="width: 50px; height: 50px;">
+                             <span style="font-size: 25px;">
+                                 <i class="fas fa-location-dot"></i>
+                             </span>
                          </a>
                      </li>
                      <li class="d-lg-none">
-                         <a href="#" class="rounded-circle bg-light p-2 mx-1" data-bs-toggle="offcanvas"
+                         @guest
+                             <a href="{{ route('login') }}"
+                                 class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
+                                 style="width: 50px; height: 50px;">
+                                 <span style="font-size: 25px;">
+                                     <i class="fas fa-cart-shopping"></i>
+                                 </span>
+                             </a>
+                         @endguest
+                         @auth
+                             <a href="{{ route('orders.index') }}"
+                                 class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center {{ request()->is('pesanan/*') || request()->is('pesanan') ? 'text-primary' : '' }}"
+                                 style="width: 50px; height: 50px;">
+                                 <span style="font-size: 25px;">
+                                     <i class="fas fa-truck"></i>
+                                 </span>
+                             </a>
+                             <a href="#"
+                                 class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
+                                 style="width: 50px; height: 50px;" data-bs-toggle="offcanvas"
+                                 data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
+                                 <span style="font-size: 25px;">
+                                     <i class="fas fa-cart-shopping"></i>
+                                 </span>
+                             </a>
+                             <a href="{{ route('profile') }}"
+                                 class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('profile') ? 'text-primary' : '' }}"
+                                 style="width: 50px; height: 50px;">
+                                 <span style="font-size: 25px;">
+                                     <i class="fas fa-user"></i>
+                                 </span>
+                             </a>
+                         @endauth
+                     </li>
+                     <li class="d-lg-none">
+                         <a href="#"
+                             class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
+                             style="width: 50px; height: 50px;" data-bs-toggle="offcanvas"
                              data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                             <svg width="24" height="24" viewBox="0 0 24 24">
-                                 <use xlink:href="#menu"></use>
-                             </svg>
+                             <span style="font-size: 25px;">
+                                 <i class="fas fa-bars"></i>
+                             </span>
                          </a>
                      </li>
                  </ul>
@@ -60,9 +92,7 @@
                      <button class="border-0 bg-transparent d-flex flex-column gap-2 lh-1" type="button"
                          data-bs-toggle="offcanvas" data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
                          <span class="fs-6 text-muted dropdown-toggle">
-                             <svg width="24" height="24" viewBox="0 0 24 24">
-                                 <use xlink:href="#cart"></use>
-                             </svg>
+                             <i class="fas fa-cart-shopping"></i>
                          </span>
                      </button>
                  </div>
@@ -71,7 +101,7 @@
          </div>
      </div>
      <div class="container-fluid">
-         <div class="row py-3">
+         <div class="row py-1">
              <div class="d-flex  justify-content-center justify-content-sm-between align-items-center">
                  <nav class="main-menu d-flex navbar navbar-expand-lg">
 
@@ -94,7 +124,15 @@
                                  </li>
                                  @auth
                                      <li class="nav-item">
-                                         <a href="{{ route('logout') }}" class="nav-link">logout</a>
+                                         <a href="{{ route('orders.index') }}" class="nav-link">Pesanan</a>
+                                     </li>
+                                     @if (auth()->user()->role == 'user')
+                                         <li class="nav-item d-sm-none d-lg-block">
+                                             <a href="{{ route('profile') }}" class="nav-link">Profile</a>
+                                         </li>
+                                     @endif
+                                     <li class="nav-item">
+                                         <button onclick="confirmLogout()" class="nav-link">logout</button>
                                      </li>
                                  @endauth
                                  @guest

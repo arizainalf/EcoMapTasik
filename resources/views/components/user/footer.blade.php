@@ -1,4 +1,4 @@
-    <div id="footer-bottom">
+    <div id="footer-bottom mt-3">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6 copyright">

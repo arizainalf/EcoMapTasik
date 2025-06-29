@@ -4,8 +4,8 @@
       <section class="py-5">
           <div class="container-fluid">
 
-              <div class="bg-secondary py-5 my-5 rounded-5"
-                  style="background: url('{{ asset('FoodMart') }}/images/bg-leaves-img-pattern.png') no-repeat;">
+              <div class="bg-light py-5 my-5 rounded-5"
+                  style="background: url('{{ asset('FoodMart/images/bg-leaves-img-pattern.png') }}') no-repeat;">
                   <div class="container my-5">
                       <form class="m-3" id="register-form">
                           <div class="mx-auto text-center my-4">
@@ -110,7 +110,7 @@
                               </div>
                               <input type="hidden" id="modeSwitcher">
                           </div>
-                          <p class="mt-5 mb-3 text-muted text-center">© {{ date('Y') }}</p>
+                          <p class="mt-5 mb-3 text-muted text-center">© {{ date('Y') }} {{ getSetting()->app_name }}</p>
                       </form>
                   </div>
               </div>
