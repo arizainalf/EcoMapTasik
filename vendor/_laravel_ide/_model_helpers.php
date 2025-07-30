@@ -5,8 +5,6 @@ namespace App\Models {
     /**
      * App\Models\Setting
      *
-     * @property string $kata_slider_2
-     * @property string $kata_slider_1
      * @property \Illuminate\Support\Carbon|null $updated_at
      * @property \Illuminate\Support\Carbon|null $created_at
      * @property string $slider_2
@@ -22,12 +20,18 @@ namespace App\Models {
      * @property string $province
      * @property int $discount
      * @property string|null $invoice_prefix
+     * @property string|null $color
+     * @property string|null $subheadline
+     * @property string|null $headline
      * @property string $app_description
      * @property string $app_name
      * @property int $id
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereId($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereAppName($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereAppDescription($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereHeadline($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereSubheadline($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereColor($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereInvoicePrefix($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereDiscount($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereProvince($value)
@@ -43,8 +47,6 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereSlider2($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereCreatedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereUpdatedAt($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereKataSlider1($value)
-     * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting whereKataSlider2($value)
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting newModelQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting newQuery()
      * @method static \Illuminate\Database\Eloquent\Builder<Setting>|Setting query()

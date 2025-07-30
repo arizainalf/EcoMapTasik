@@ -43,6 +43,17 @@ class SettingsPage extends Page implements Forms\Contracts\HasForms
                         Forms\Components\Textarea::make('app_description')
                             ->label('Deskripsi')
                             ->rows(3),
+                        Forms\Components\Textarea::make('headline')
+                            ->label('Head Line')
+                            ->rows(3),
+                        Forms\Components\Textarea::make('subheadline')
+                            ->label('Sub Head Line')
+                            ->rows(3),
+
+                        Forms\Components\ColorPicker::make('color')
+                            ->label('Warna')
+                            ->regex('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\b$/')
+                            ->default('#19fc00'),
 
                         Forms\Components\TextInput::make('invoice_prefix')
                             ->label('Prefix Invoice')

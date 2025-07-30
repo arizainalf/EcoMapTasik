@@ -243,10 +243,10 @@
 
                     const url = '/logout';
 
-                    const method = 'POST';
+                    const method = 'GET';
 
                     const successCallback = function(response) {
-                        successToast(response);
+                        successToast(response.message);
                         window.location.href = '/login';
                     }
 

@@ -26,8 +26,8 @@
                      <li class="d-lg-none">
                          <a href="{{ url('/') }}"
                              class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('/') ? 'text-primary' : '' }}"
-                             style="width: 50px; height: 50px;">
-                             <span style="font-size: 25px;">
+                             style="width: 40px; height: 40px;">
+                             <span style="font-size: 18px;">
                                  <i class="fas fa-home"></i>
                              </span>
                          </a>
@@ -35,8 +35,8 @@
                      <li class="d-lg-none">
                          <a href="{{ route('peta.index') }}"
                              class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('peta/*') || request()->is('peta') ? 'text-primary' : '' }}"
-                             style="width: 50px; height: 50px;">
-                             <span style="font-size: 25px;">
+                             style="width: 40px; height: 40px;">
+                             <span style="font-size: 18px;">
                                  <i class="fas fa-location-dot"></i>
                              </span>
                          </a>
@@ -45,8 +45,8 @@
                          @guest
                              <a href="{{ route('login') }}"
                                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
-                                 style="width: 50px; height: 50px;">
-                                 <span style="font-size: 25px;">
+                                 style="width: 40px; height: 40px;">
+                                 <span style="font-size: 18px;">
                                      <i class="fas fa-cart-shopping"></i>
                                  </span>
                              </a>
@@ -54,23 +54,23 @@
                          @auth
                              <a href="{{ route('orders.index') }}"
                                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center {{ request()->is('pesanan/*') || request()->is('pesanan') ? 'text-primary' : '' }}"
-                                 style="width: 50px; height: 50px;">
-                                 <span style="font-size: 25px;">
+                                 style="width: 40px; height: 40px;">
+                                 <span style="font-size: 18px;">
                                      <i class="fas fa-truck"></i>
                                  </span>
                              </a>
                              <a href="#"
                                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
-                                 style="width: 50px; height: 50px;" data-bs-toggle="offcanvas"
+                                 style="width: 40px; height: 40px;" data-bs-toggle="offcanvas"
                                  data-bs-target="#offcanvasCart" aria-controls="offcanvasCart">
-                                 <span style="font-size: 25px;">
+                                 <span style="font-size: 18px;">
                                      <i class="fas fa-cart-shopping"></i>
                                  </span>
                              </a>
                              <a href="{{ route('profile') }}"
                                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1 {{ request()->is('profile') ? 'text-primary' : '' }}"
-                                 style="width: 50px; height: 50px;">
-                                 <span style="font-size: 25px;">
+                                 style="width: 40px; height: 40px;">
+                                 <span style="font-size: 18px;">
                                      <i class="fas fa-user"></i>
                                  </span>
                              </a>
@@ -79,9 +79,9 @@
                      <li class="d-lg-none">
                          <a href="#"
                              class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mx-1"
-                             style="width: 50px; height: 50px;" data-bs-toggle="offcanvas"
+                             style="width: 40px; height: 40px;" data-bs-toggle="offcanvas"
                              data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
-                             <span style="font-size: 25px;">
+                             <span style="font-size: 18px;">
                                  <i class="fas fa-bars"></i>
                              </span>
                          </a>
